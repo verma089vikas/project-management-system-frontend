@@ -47,9 +47,8 @@ const ProfilesPage = () => {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const res = await fetch("http://192.168.1.5:8080/api/v1/users", {
+        const res = await fetch("http://localhost:8080/api/v1/users", {
           method: "GET",
-          headers: { "Content-Type": "application/json" },
         });
         if (!res.ok) throw new Error("Failed to fetch users");
         const data = await res.json();
