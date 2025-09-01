@@ -21,11 +21,19 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
-import { Box, Paper, Typography, Button, TextField, IconButton } from "@mui/material";
+import {
+  Box,
+  Paper,
+  Typography,
+  Button,
+  TextField,
+  IconButton,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
-import SortableTask from "./SortableTask"; // We'll create this below
+import SortableTask from "./Sortabletask"; // We'll create this below
+import TaskDialog from "../projects/DialogBoxes/createTask";
 
 const statuses = ["todo", "in-progress", "done"];
 
@@ -43,6 +51,17 @@ export default function Tasks() {
   const [newTaskName, setNewTaskName] = useState("");
   const [editId, setEditId] = useState(null);
   const [editValue, setEditValue] = useState("");
+  const [open, onClose] = useState(false);
+  const [selectedAction, setSelectedAction] = useState(null);
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    status: "TODO",
+    priority: "LOW",
+    estimatedHours: "",
+    project: "",
+    assignee: "",
+  });
 
   // For drag overlay display
   const [activeId, setActiveId] = useState(null);
@@ -132,7 +151,8 @@ export default function Tasks() {
 
     // Validate allowed moves (todo -> in-progress, in-progress -> done)
     const allowedDest = allowedMoves[sourceStatus];
-    if (!allowedDest.includes(destStatus) && sourceStatus !== destStatus) return;
+    if (!allowedDest.includes(destStatus) && sourceStatus !== destStatus)
+      return;
 
     // If moving within same column: reorder tasks in that column
     if (sourceStatus === destStatus) {
@@ -164,98 +184,162 @@ export default function Tasks() {
         id: active.id,
         sourceStatus,
         destStatus,
-        sourceIndex: groupedTasks[sourceStatus].findIndex((t) => t.id === active.id),
+        sourceIndex: groupedTasks[sourceStatus].findIndex(
+          (t) => t.id === active.id
+        ),
         destIndex,
       })
     );
   };
-
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
-        <TextField
-          size="small"
-          label="New Task"
-          value={newTaskName}
-          onChange={(e) => setNewTaskName(e.target.value)}
-        />
-        <Button variant="contained" onClick={handleCreate}>
-          Add Task
-        </Button>
-      </Box>
-
-      <Box sx={{ display: "flex", gap: 2 }}>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
+    <Box
+      sx={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        bgcolor: "#eaeff1",
+      }}
+    >
+      <Paper
+        elevation={10}
+        sx={{
+          height: "95vh",
+          width: "80vw",
+          m: 2,
+          borderRadius: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          backgroundColor: "#b7dee7ff",
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{ p: 2, fontWeight: "bold", color: "#424242" }}
         >
-          {statuses.map((status) => {
-            const tasksInStatus = groupedTasks[status];
-            const ids = tasksInStatus.map((t) => t.id);
+          Task Management
+        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography
+            variant="h5"
+            sx={{ p: 2, fontWeight: "bold", color: "#1021b9ff" }}
+          >
+            Project - NCL Leads
+          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => onClose(true)}
+            sx={{ m: 2, height: 30 }}
+          >
+            Create Task
+          </Button>
+        </Box>
 
-            return (
-              <Paper
-                key={status}
-                sx={{
-                  width: 300,
-                  minHeight: 400,
-                  p: 2,
-                  bgcolor: "#f5f5f5",
-                  flexShrink: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <Typography variant="h6" sx={{ mb: 2 }}>
-                  {status.toUpperCase()}
-                </Typography>
+        <Box
+          sx={{
+            flex: 1,
+            display: "flex",
+            gap: 2,
+            overflowX: "auto",
+            p: 2,
+          }}
+        >
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+          >
+            {statuses.map((status) => {
+              const tasksInStatus = groupedTasks[status];
+              const ids = tasksInStatus.map((t) => t.id);
 
-                <SortableContext
-                  items={ids}
-                  strategy={verticalListSortingStrategy}
+              const columnColors = {
+                todo: "#fff3e0", // light orange
+                "in-progress": "#e3f2fd", // light blue
+                done: "#e8f5e9", // light green
+              };
+
+              return (
+                <Paper
+                  key={status}
+                  sx={{
+                    width: 320,
+                    minWidth: 300,
+                    flexShrink: 0,
+                    p: 2,
+                    bgcolor: columnColors[status],
+                    borderRadius: 2,
+                    boxShadow: 3,
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
                 >
-                  {tasksInStatus.map((task, index) => (
-                    <SortableTask
-                      key={task.id}
-                      id={task.id}
-                      task={task}
-                      editId={editId}
-                      setEditId={setEditId}
-                      editValue={editValue}
-                      setEditValue={setEditValue}
-                      handleEdit={handleEdit}
-                      dispatch={dispatch}
-                    />
-                  ))}
-                </SortableContext>
-              </Paper>
-            );
-          })}
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      textTransform: "uppercase",
+                      mb: 2,
+                      fontWeight: "bold",
+                      color: "#424242",
+                    }}
+                  >
+                    {status.replace("-", " ")}
+                  </Typography>
 
-          <DragOverlay>
-            {activeId ? (
-              <Paper
-                sx={{
-                  p: 1,
-                  bgcolor: "white",
-                  boxShadow: 3,
-                  width: 280,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                }}
-              >
-                <Typography>
-                  {tasks.find((t) => t.id === activeId)?.name || ""}
-                </Typography>
-              </Paper>
-            ) : null}
-          </DragOverlay>
-        </DndContext>
-      </Box>
+                  <SortableContext
+                    items={ids}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {tasksInStatus.map((task) => (
+                      <SortableTask
+                        key={task.id}
+                        id={task.id}
+                        task={task}
+                        editId={editId}
+                        setEditId={setEditId}
+                        editValue={editValue}
+                        setEditValue={setEditValue}
+                        handleEdit={handleEdit}
+                        dispatch={dispatch}
+                        onClose={onClose}
+                        open={open}
+                      />
+                    ))}
+                  </SortableContext>
+                </Paper>
+              );
+            })}
+
+            {/* Drag Overlay Styling */}
+            <DragOverlay>
+              {activeId ? (
+                <Paper
+                  sx={{
+                    p: 1,
+                    bgcolor: "white",
+                    boxShadow: 5,
+                    width: 280,
+                    borderRadius: 1,
+                  }}
+                >
+                  <Typography>
+                    {tasks.find((t) => t.id === activeId)?.name || ""}
+                  </Typography>
+                </Paper>
+              ) : null}
+            </DragOverlay>
+          </DndContext>
+        </Box>
+        <TaskDialog
+          open={open}
+          onClose={onClose}
+          initialData={null}
+          onSave={(task) => dispatch(addTask(task))}
+        />
+      </Paper>
     </Box>
   );
 }
-

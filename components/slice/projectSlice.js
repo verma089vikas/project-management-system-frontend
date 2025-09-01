@@ -21,7 +21,9 @@ export const fetchProjectByUserId = createAsyncThunk(
   'projects/fetchById',
   async (userId, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${BASE_URL}/user/${userId}`);
+      const res = await fetch(`${BASE_URL}/user/${userId}`,{
+         headers: { "Content-Type": "application/json" },
+      });
       if (!res.ok) throw new Error('Failed to fetch project by ID');
       return await res.json();
     } catch (err) {
@@ -51,10 +53,9 @@ export const updateProject = createAsyncThunk(
   "projects/update",
   async (body, { rejectWithValue }) => {
     try {
-        console.log("hello")
       const res = await fetch(`${BASE_URL}/${body?.id}`, {
         method: "PUT",
-       // headers: { "Content-Type": "application/json" },
+       headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Failed to update project");
