@@ -183,7 +183,6 @@ const ModifyProjectDialog = ({ open, onClose, project }) => {
   const dispatch = useDispatch();
   const user = JSON.parse(localStorage.getItem("user"));
   const { users } = useSelector((state) => state.users);
-  console.log("users",users)
   const defaultValues = {
     name: project?.name || "",
     description: project?.description || "",
@@ -221,7 +220,6 @@ const ModifyProjectDialog = ({ open, onClose, project }) => {
                 ownerId: values.ownerId,
               };
 
-              console.log("Submitting project update:", body);
 
               await dispatch(updateProject(body));
 
@@ -327,7 +325,6 @@ const ModifyProjectDialog = ({ open, onClose, project }) => {
                 </Button>
                 <Button
                   onClick={() => {
-                    console.log("ownerid",values.ownerId)
                     const body = {
                       id: project.id,
                       name: values.name,
@@ -336,8 +333,6 @@ const ModifyProjectDialog = ({ open, onClose, project }) => {
                       status: values.status,
                       ownerId: values.ownerId,
                     };
-
-                    console.log("Submitting project update:", body);
 
                     dispatch(updateProject(body));
 

@@ -34,7 +34,7 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import SortableTask from "./Sortabletask"; // We'll create this below
 import TaskDialog from "../projects/DialogBoxes/createTask";
-import { fetchTasks } from "../slice/taskSlice";
+import { fetchTasks, updateTaskStatus } from "../slice/taskSlice";
 
 const statuses = ["TODO", "IN_PROGRESS", "DONE"];
 
@@ -59,6 +59,7 @@ export default function Tasks() {
     dispatch(fetchTasks(projectDetails.id));
   },[])
   const [form, setForm] = useState({
+    id:"",
     title: "",
     description: "",
     status: "TODO",
@@ -67,6 +68,7 @@ export default function Tasks() {
     projectId: projectDetails.id,
     assigneeId: "",
   });
+
 
   // For drag overlay display
   const [activeId, setActiveId] = useState(null);
@@ -95,7 +97,7 @@ export default function Tasks() {
       addTask({
         name: newTaskName.trim(),
         status: "TODO",
-        priority: "LOW",
+        priority: "low",
       })
     );
     setNewTaskName("");
@@ -117,8 +119,8 @@ export default function Tasks() {
   // Handle drag end
   const handleDragEnd = ({ active, over }) => {
     setActiveId(null);
-
     if (!over) return;
+   
 
     // active.id = dragged task id
     // over.id = the task (or droppable) over which the item was dropped
@@ -149,13 +151,14 @@ export default function Tasks() {
       // Dropped outside a task (maybe empty space), ignore
       return;
     }
-
+   
     // Disallow invalid moves:
 
     // Can't move if destStatus === sourceStatus and dropped in same position
     if (sourceStatus === destStatus && active.id === over.id) return;
 
     // Validate allowed moves (todo -> IN_PROGRESS, IN_PROGRESS -> DONE)
+   
     const allowedDest = allowedMoves[sourceStatus];
     if (!allowedDest.includes(destStatus) && sourceStatus !== destStatus)
       return;
@@ -165,37 +168,54 @@ export default function Tasks() {
       const currentTasks = groupedTasks[sourceStatus];
       const oldIndex = currentTasks.findIndex((t) => t.id === active.id);
       const newIndex = destIndex;
+      
 
       if (oldIndex !== newIndex) {
         const newOrder = arrayMove(currentTasks, oldIndex, newIndex);
         // Dispatch reorder action
-        dispatch(
-          moveTask({
-            id: active.id,
-            sourceStatus,
-            destStatus,
-            sourceIndex: oldIndex,
-            destIndex: newIndex,
-          })
-        );
+        // dispatch(
+        //   moveTask({
+        //     id: active.id,
+        //     sourceStatus,
+        //     destStatus,
+        //     sourceIndex: oldIndex,
+        //     destIndex: newIndex,
+        //   })
+        // );
+        const body={
+          status:destStatus,
+          id:active.id
+        }
+        
+       dispatch(updateTaskStatus(body)).then(()=>dispatch(fetchTasks(projectDetails.id)))
       }
       return;
     }
 
     // Moving across columns (todo -> IN_PROGRESS or IN_PROGRESS -> DONE)
-
     // Insert dragged task at destIndex in destStatus column
-    dispatch(
-      moveTask({
-        id: active.id,
-        sourceStatus,
-        destStatus,
-        sourceIndex: groupedTasks[sourceStatus].findIndex(
-          (t) => t.id === active.id
-        ),
-        destIndex,
-      })
-    );
+    const body={
+          status:destStatus,
+          id:active.id
+        }
+        
+       dispatch(updateTaskStatus(body)).then((res)=>
+       {
+        if(res.meta.requestStatus==="fulfilled")
+        dispatch(fetchTasks(projectDetails.id))
+      }
+      )
+    // dispatch(
+    //   moveTask({
+    //     id: active.id,
+    //     sourceStatus,
+    //     destStatus,
+    //     sourceIndex: groupedTasks[sourceStatus].findIndex(
+    //       (t) => t.id === active.id
+    //     ),
+    //     destIndex,
+    //   })
+    // );
   };
   return (
     <Box
@@ -236,7 +256,9 @@ export default function Tasks() {
           <Button
             variant="contained"
             color="primary"
-            onClick={() => onClose(true)}
+            onClick={() =>{
+              setSelectedAction("create"); 
+              onClose(true)}}
             sx={{ m: 2, height: 30 }}
           >
             Create Task
@@ -264,7 +286,7 @@ export default function Tasks() {
 
               const columnColors = {
                 TODO: "#fff3e0", // light orange
-                "IN_PROGRESS": "#e3f2fd", // light blue
+                IN_PROGRESS: "#e3f2fd", // light blue
                 DONE: "#e8f5e9", // light green
               };
 
@@ -311,6 +333,11 @@ export default function Tasks() {
                         setEditValue={setEditValue}
                         handleEdit={handleEdit}
                         dispatch={dispatch}
+                        form={form}
+                        setForm={setForm}
+                        open={open}
+                        onClose={onClose}
+                        setSelectedAction={setSelectedAction}
                       />
                     ))}
                   </SortableContext>
@@ -345,6 +372,7 @@ export default function Tasks() {
           onSave={(task) => dispatch(addTask(task))}
           form={form}
           setForm={setForm}
+          selectedAction={selectedAction}
         />
       </Paper>
     </Box>

@@ -18,6 +18,20 @@ export const fetchTasks = createAsyncThunk(
     }
   }
 );
+export const updateTaskStatus = createAsyncThunk(
+  "tasks/updateTaskStatus",
+  async (body, thunkAPI) => {
+    try {
+      const res = await axios.put(`${API_URL}/${body.id}/status?status=${body.status}`,{
+        method: 'PUT',
+         headers: { "Content-Type": "application/json" }
+      });
+      return res.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data || err.message);
+    }
+  }
+);
 
 export const createTask = createAsyncThunk(
   "tasks/createTask",
@@ -35,9 +49,11 @@ export const createTask = createAsyncThunk(
 
 export const updateTask = createAsyncThunk(
   "tasks/updateTask",
-  async ({ id, updates }, thunkAPI) => {
+  async (taskData, thunkAPI) => {
     try {
-      const res = await axios.put(`${API_URL}/${id}`, updates);
+      const res = await axios.put(`${API_URL}/${taskData?.id}`,  taskData,{
+          headers: { "Content-Type": "application/json" }
+      });
       return res.data;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data || err.message);

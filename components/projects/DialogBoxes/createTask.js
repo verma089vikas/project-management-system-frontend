@@ -15,7 +15,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { createTask, createTaskDependency } from "@/components/slice/taskSlice";
+import { createTask, createTaskDependency, updateTask } from "@/components/slice/taskSlice";
 import { useSelector } from "react-redux";
 
 // Dropdown options
@@ -23,14 +23,13 @@ const taskStatusOptions = ["TODO", "IN_PROGRESS", "DONE"];
 const taskPriorityOptions = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
 
-export default function TaskDialog({ open, onClose, onSave, initialData,form,setForm }) {
+export default function TaskDialog({ open, onClose, onSave, initialData,form,setForm,selectedAction }) {
   const theme = useTheme();
   const dispatch = useDispatch();
   const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));  
 const { users } = useSelector((state) => state.users);
 const {tasks} = useSelector((state) => state.tasks);
 const [dependentOn, setDependentOn] = useState("");
-
 const formattedUsers = users.map(user => ({
       id: user.id,
       name: user.name,
@@ -67,7 +66,7 @@ const formattedUsers = users.map(user => ({
       assigneeId:form.assigneeId ? Number(form.assigneeId) : null,
       estimatedHours:Number(form.estimatedHours)
     };
-    dispatch(createTask(task));
+   selectedAction ==="create"? dispatch(createTask(task)):dispatch(updateTask(task));
     onClose(false);
   };
 
@@ -92,7 +91,7 @@ const formattedUsers = users.map(user => ({
           color: "#1976d2",
         }}
       >
-        {initialData ? "Edit Task" : "Create Task"}
+        {selectedAction=== "edit" ? "Edit Task" : "Create Task"}
       </DialogTitle>
 
       <DialogContent dividers>
@@ -165,6 +164,7 @@ const formattedUsers = users.map(user => ({
           </Grid>
 
           {/* Project */}
+          {selectedAction==="edit" &&
           <Grid item xs={12}>
             <FormControl fullWidth sx={{minWidth:"250px"}} size="small">
               <InputLabel>Dependent On</InputLabel>
@@ -185,6 +185,7 @@ const formattedUsers = users.map(user => ({
               </Select>
             </FormControl>
           </Grid>
+          }
 
           {/* Assignee */}
           <Grid item xs={12}>
@@ -247,7 +248,7 @@ const formattedUsers = users.map(user => ({
             },
           }}
         >
-          {initialData ? "Update Task" : "Create Task"}
+          {selectedAction=== "edit" ? "Update Task" : "Create Task"}
         </Button>
       </DialogActions>
     </Dialog>

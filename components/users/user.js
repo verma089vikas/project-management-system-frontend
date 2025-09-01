@@ -56,7 +56,6 @@ const ProfilesPage = () => {
   }, [dispatch]);
 
   const handleClick = (user) => {
-    console.log(user);
     localStorage.setItem("user", JSON.stringify(user));
     router.push("/projects"); // Navigate to user profile page
   };

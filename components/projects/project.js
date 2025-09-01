@@ -82,7 +82,6 @@ const Project = () => {
   };
 
   const handleCreateProject = () => {
-    console.log("Create New Project");
     onClose(true);
   };
 
