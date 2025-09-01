@@ -43,8 +43,8 @@ export default function TaskDialog({ open, onClose, onSave, initialData }) {
     status: "TODO",
     priority: "LOW",
     estimatedHours: "",
-    project: "",
-    assignee: "",
+    projectId: "",
+    assigneeId: "",
   });
 
   useEffect(() => {
@@ -57,8 +57,8 @@ export default function TaskDialog({ open, onClose, onSave, initialData }) {
         status: "TODO",
         priority: "LOW",
         estimatedHours: "",
-        project: 2,
-        assignee: "",
+        projectId: 1,
+        assigneeId: "",
       });
     }
   }, [initialData]);
@@ -70,7 +70,7 @@ export default function TaskDialog({ open, onClose, onSave, initialData }) {
   const handleSave = () => {
     const task = {
       ...form,
-      assignee:2,
+      assigneeId:2,
       estimatedHours:Number(form.estimatedHours)
     };
     dispatch(createTask(task));
@@ -175,8 +175,8 @@ export default function TaskDialog({ open, onClose, onSave, initialData }) {
             <FormControl fullWidth sx={{minWidth:"250px"}} size="small">
               <InputLabel>Project</InputLabel>
               <Select
-                value={form.project}
-                onChange={handleChange("project")}
+                value={form.projectId}
+                onChange={handleChange("projectId")}
                 label="Project"
                 fullWidth
               >
@@ -194,8 +194,8 @@ export default function TaskDialog({ open, onClose, onSave, initialData }) {
             <FormControl fullWidth sx={{minWidth:"250px"}} size="small">
               <InputLabel>Assignee</InputLabel>
               <Select
-                value={form.assignee}
-                onChange={handleChange("assignee")}
+                value={form.assigneeId}
+                onChange={handleChange("assigneeId")}
                 label="Assignee"
               >
                 {mockUsers.map((u) => (

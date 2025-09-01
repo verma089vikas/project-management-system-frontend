@@ -6,9 +6,9 @@ const API_URL = "http://localhost:8080/api/v1/tasks"; // ← Replace with real U
 
 export const fetchTasks = createAsyncThunk(
   "tasks/fetchTasks",
-  async (_, thunkAPI) => {
+  async (id, thunkAPI) => {
     try {
-      const res = await axios.get(API_URL,{
+      const res = await axios.get(`${API_URL}/project/${id}`,{
         method: 'GET',
          headers: { "Content-Type": "application/json" }
       });

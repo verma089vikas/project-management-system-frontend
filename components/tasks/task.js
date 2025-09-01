@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { addTask, deleteTask, editTask, moveTask } from "../slice/kanbanSlice";
 
@@ -34,19 +34,20 @@ import EditIcon from "@mui/icons-material/Edit";
 
 import SortableTask from "./Sortabletask"; // We'll create this below
 import TaskDialog from "../projects/DialogBoxes/createTask";
+import { fetchTasks } from "../slice/taskSlice";
 
-const statuses = ["todo", "in-progress", "done"];
+const statuses = ["TODO", "IN_PROGRESS", "DONE"];
 
 // Allowed moves map
 const allowedMoves = {
-  todo: ["in-progress"],
-  "in-progress": ["done"],
-  done: [],
+TODO: ["IN_PROGRESS"],
+  "IN_PROGRESS": ["DONE"],
+  DONE: [],
 };
 
 export default function Tasks() {
   const dispatch = useDispatch();
-  const tasks = useSelector((state) => state.kanban.tasks);
+  const {tasks} = useSelector((state) => state.tasks);
 
   const [newTaskName, setNewTaskName] = useState("");
   const [editId, setEditId] = useState(null);
@@ -62,7 +63,12 @@ export default function Tasks() {
     project: "",
     assignee: "",
   });
+const projectDetails= JSON.parse(localStorage.getItem("project"));
+  useEffect(()=>{
+    dispatch(fetchTasks(projectDetails.id));
+  },[])
 
+  console.log("tasks", tasks);
   // For drag overlay display
   const [activeId, setActiveId] = useState(null);
 
@@ -79,6 +85,7 @@ export default function Tasks() {
     acc[status] = tasks.filter((task) => task.status === status);
     return acc;
   }, {});
+  console.log("groupedTasks", groupedTasks);
 
   // Handlers
 
@@ -88,7 +95,7 @@ export default function Tasks() {
     dispatch(
       addTask({
         name: newTaskName.trim(),
-        status: "todo",
+        status: "TODO",
         priority: "low",
       })
     );
@@ -149,7 +156,7 @@ export default function Tasks() {
     // Can't move if destStatus === sourceStatus and dropped in same position
     if (sourceStatus === destStatus && active.id === over.id) return;
 
-    // Validate allowed moves (todo -> in-progress, in-progress -> done)
+    // Validate allowed moves (todo -> IN_PROGRESS, IN_PROGRESS -> DONE)
     const allowedDest = allowedMoves[sourceStatus];
     if (!allowedDest.includes(destStatus) && sourceStatus !== destStatus)
       return;
@@ -176,7 +183,7 @@ export default function Tasks() {
       return;
     }
 
-    // Moving across columns (todo -> in-progress or in-progress -> done)
+    // Moving across columns (todo -> IN_PROGRESS or IN_PROGRESS -> DONE)
 
     // Insert dragged task at destIndex in destStatus column
     dispatch(
@@ -254,12 +261,13 @@ export default function Tasks() {
           >
             {statuses.map((status) => {
               const tasksInStatus = groupedTasks[status];
+              console.log("tasksInStatus", tasksInStatus);
               const ids = tasksInStatus.map((t) => t.id);
 
               const columnColors = {
-                todo: "#fff3e0", // light orange
-                "in-progress": "#e3f2fd", // light blue
-                done: "#e8f5e9", // light green
+                TODO: "#fff3e0", // light orange
+                "IN_PROGRESS": "#e3f2fd", // light blue
+                DONE: "#e8f5e9", // light green
               };
 
               return (
@@ -286,7 +294,7 @@ export default function Tasks() {
                       color: "#424242",
                     }}
                   >
-                    {status.replace("-", " ")}
+                    {status.replace("_", " ")}
                   </Typography>
 
                   <SortableContext

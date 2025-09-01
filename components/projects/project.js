@@ -30,6 +30,8 @@ import {
 } from "../slice/projectSlice";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
+import { roRO } from "@mui/x-date-pickers/locales";
+import { useRouter } from "next/navigation";
 
 const fadeIn = keyframes`
   from {
@@ -45,6 +47,7 @@ const fadeIn = keyframes`
 const Project = () => {
   const [open, onClose] = useState(false);
   const dispatch = useDispatch();
+    const router = useRouter();
   const [modifyproject, setModifyProject] = useState(false);
   const { projects, userProjects } = useSelector((state) => state.projects);
   const [selectedProject,setSelectedProject] = useState(null);
@@ -60,13 +63,13 @@ const Project = () => {
   // ];
 
   const user = JSON.parse(localStorage.getItem("user"));
-  console.log("user", user);
+
   const handleModify = (project) => {
     setSelectedProject(project);
     // alert(`Modify ${name}`);
     setModifyProject(true);
   };
-  console.log("selectedProject", selectedProject);
+
   useEffect(() => {
     if (user.role === "ADMIN") dispatch(fetchProjects());
     else dispatch(fetchProjectByUserId(user.id));
@@ -189,7 +192,10 @@ const Project = () => {
                 <ListItem key={index} disablePadding sx={{ mb: 2 }}>
                   <Box sx={{ width: "100%" }}>
                     <ListItemButton
-                      onClick={() => console.log(`Clicked on ${project.name}`)}
+                      onClick={() => {
+                        localStorage.setItem("project", JSON.stringify(project))
+                        router.push("/tasks");
+                        }}
                       sx={{
                         backgroundColor: "white",
                         borderRadius: 2,
