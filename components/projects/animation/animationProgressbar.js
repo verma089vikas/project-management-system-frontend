@@ -6,6 +6,7 @@ const AnimatedProgressBar = ({ target }) => {
 
   useEffect(() => {
     const value = parseInt(target);
+    if(!value) return;
     const interval = setInterval(() => {
       setProgress((old) => {
         if (old >= value) {

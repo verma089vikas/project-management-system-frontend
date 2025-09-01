@@ -3,6 +3,9 @@ import React, { useEffect } from "react";
 import { Avatar, Grid, Typography, Box, Container, Paper } from "@mui/material";
 import { deepPurple, teal, orange, blue } from "@mui/material/colors";
 import { useRouter } from "next/navigation";
+import { fetchUsers } from "../slice/userSlice";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 
 // const users = [
 //   { name: "Alice", role: "Admin", color: deepPurple[500] },
@@ -11,56 +14,47 @@ import { useRouter } from "next/navigation";
 //   { name: "Diana", role: "Admin", color: blue[500] },
 // ];
 
-const users = [
-  {
-    id: 2,
-    name: "Admin",
-    email: "admin@example.com",
-    role: "ADMIN",
-    color: deepPurple[500],
-  },
-  {
-    id: 3,
-    name: "Vikas",
-    email: "vikas@example.com",
-    role: "DEVELOPER",
-    color: teal[500],
-  },
-  {
-    id: 4,
-    name: "Rahul",
-    email: "rahul@example.com",
-    role: "DEVELOPER",
-    color: orange[500],
-  },
-  {
-    id: 5,
-    name: "Madhu",
-    email: "madhu@example.com",
-    role: "DEVELOPER",
-    color: blue[500],
-  },
-];
+// const users = [
+//   {
+//     id: 2,
+//     name: "Admin",
+//     email: "admin@example.com",
+//     role: "ADMIN",
+//     color: deepPurple[500],
+//   },
+//   {
+//     id: 3,
+//     name: "Vikas",
+//     email: "vikas@example.com",
+//     role: "DEVELOPER",
+//     color: teal[500],
+//   },
+//   {
+//     id: 4,
+//     name: "Rahul",
+//     email: "rahul@example.com",
+//     role: "DEVELOPER",
+//     color: orange[500],
+//   },
+//   {
+//     id: 5,
+//     name: "Madhu",
+//     email: "madhu@example.com",
+//     role: "DEVELOPER",
+//     color: blue[500],
+//   },
+// ];
+const colors = [deepPurple[500], teal[500], orange[500], blue[500], "#FF5722", "#4CAF50", "#2196F3", "#9C27B0"];
 const ProfilesPage = () => {
   const router = useRouter();
 
+ const { users, loading, error } = useSelector(state => state.users);
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    const getUsers = async () => {
-      try {
-        const res = await fetch("http://localhost:8080/api/v1/users", {
-          method: "GET",
-        });
-        if (!res.ok) throw new Error("Failed to fetch users");
-        const data = await res.json();
-        console.log("data", data);
-        return data;
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        return [];
-      }
-    };
-    getUsers();
-  }, []);
+    dispatch(fetchUsers());
+  }, [dispatch]);
+
   const handleClick = (user) => {
     console.log(user);
     localStorage.setItem("user", JSON.stringify(user));
@@ -109,7 +103,7 @@ const ProfilesPage = () => {
               >
                 <Avatar
                   sx={{
-                    bgcolor: user.color,
+                    bgcolor: colors[index % colors.length],
                     width: 80,
                     height: 80,
                     margin: "auto",
