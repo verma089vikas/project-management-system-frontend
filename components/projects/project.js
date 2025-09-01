@@ -192,8 +192,9 @@ const Project = () => {
                 <ListItem key={index} disablePadding sx={{ mb: 2 }}>
                   <Box sx={{ width: "100%" }}>
                     <ListItemButton
-                      onClick={() => {
+                      onClick={(event) => {
                         localStorage.setItem("project", JSON.stringify(project))
+                        if(event.target.tagName !== 'BUTTON')
                         router.push("/tasks");
                         }}
                       sx={{
