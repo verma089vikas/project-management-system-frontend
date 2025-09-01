@@ -163,9 +163,9 @@ import { createSlice, nanoid } from "@reduxjs/toolkit";
 
 const initialState = {
   tasks: [
-    { id: "1", name: "Design UI", status: "TODO", priority: "high" },
-    { id: "2", name: "Setup Redux", status: "IN_PROGRESS", priority: "medium" },
-    { id: "3", name: "Connect DnD", status: "DONE", priority: "low" },
+    { id: "1", name: "Design UI", status: "TODO", priority: "HIGH" },
+    { id: "2", name: "Setup Redux", status: "IN_PROGRESS", priority: "MEDIUM" },
+    { id: "3", name: "Connect DnD", status: "DONE", priority: "LOW" },
   ],
 };
 

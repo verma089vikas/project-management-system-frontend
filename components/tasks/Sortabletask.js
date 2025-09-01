@@ -1,7 +1,13 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Paper, Typography, IconButton, TextField, Button } from "@mui/material";
+import {
+  Paper,
+  Typography,
+  IconButton,
+  TextField,
+  Button,
+} from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 
@@ -23,7 +29,6 @@ export default function SortableTask({
     transition,
     isDragging,
   } = useSortable({ id });
-
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -62,13 +67,13 @@ export default function SortableTask({
         </>
       ) : (
         <>
-          <Typography sx={{ flexGrow: 1 }}>{task.name}</Typography>
+          <Typography sx={{ flexGrow: 1 }}>{task.projectName}</Typography>
           <IconButton
             size="small"
             onClick={(e) => {
               e.stopPropagation();
               setEditId(id);
-              setEditValue(task.name);
+              setEditValue(task.projectName);
             }}
           >
             <EditIcon fontSize="small" />
@@ -76,8 +81,9 @@ export default function SortableTask({
           <IconButton
             size="small"
             onClick={(e) => {
-              e.stopPropagation();
-              dispatch({ type: "kanban/deleteTask", payload: id });
+              // e.stopPropagation();
+              console.log("Delete", id);
+              // dispatch({ type: "kanban/deleteTask", payload: id });
             }}
           >
             <DeleteIcon fontSize="small" />

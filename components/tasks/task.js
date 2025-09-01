@@ -67,8 +67,6 @@ const projectDetails= JSON.parse(localStorage.getItem("project"));
   useEffect(()=>{
     dispatch(fetchTasks(projectDetails.id));
   },[])
-
-  console.log("tasks", tasks);
   // For drag overlay display
   const [activeId, setActiveId] = useState(null);
 
@@ -85,7 +83,7 @@ const projectDetails= JSON.parse(localStorage.getItem("project"));
     acc[status] = tasks.filter((task) => task.status === status);
     return acc;
   }, {});
-  console.log("groupedTasks", groupedTasks);
+  
 
   // Handlers
 
@@ -96,7 +94,7 @@ const projectDetails= JSON.parse(localStorage.getItem("project"));
       addTask({
         name: newTaskName.trim(),
         status: "TODO",
-        priority: "low",
+        priority: "LOW",
       })
     );
     setNewTaskName("");
@@ -232,7 +230,7 @@ const projectDetails= JSON.parse(localStorage.getItem("project"));
             variant="h5"
             sx={{ p: 2, fontWeight: "bold", color: "#1021b9ff" }}
           >
-            Project - NCL Leads
+            Project - {projectDetails?.name}
           </Typography>
           <Button
             variant="contained"
@@ -261,7 +259,6 @@ const projectDetails= JSON.parse(localStorage.getItem("project"));
           >
             {statuses.map((status) => {
               const tasksInStatus = groupedTasks[status];
-              console.log("tasksInStatus", tasksInStatus);
               const ids = tasksInStatus.map((t) => t.id);
 
               const columnColors = {
@@ -309,11 +306,10 @@ const projectDetails= JSON.parse(localStorage.getItem("project"));
                         editId={editId}
                         setEditId={setEditId}
                         editValue={editValue}
+                        handleCreate={handleCreate}
                         setEditValue={setEditValue}
                         handleEdit={handleEdit}
                         dispatch={dispatch}
-                        onClose={onClose}
-                        open={open}
                       />
                     ))}
                   </SortableContext>
