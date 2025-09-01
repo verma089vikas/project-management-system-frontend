@@ -54,19 +54,20 @@ export default function Tasks() {
   const [editValue, setEditValue] = useState("");
   const [open, onClose] = useState(false);
   const [selectedAction, setSelectedAction] = useState(null);
+  const projectDetails= JSON.parse(localStorage.getItem("project"));
+  useEffect(()=>{
+    dispatch(fetchTasks(projectDetails.id));
+  },[])
   const [form, setForm] = useState({
     title: "",
     description: "",
     status: "TODO",
     priority: "LOW",
     estimatedHours: "",
-    project: "",
-    assignee: "",
+    projectId: projectDetails.id,
+    assigneeId: "",
   });
-const projectDetails= JSON.parse(localStorage.getItem("project"));
-  useEffect(()=>{
-    dispatch(fetchTasks(projectDetails.id));
-  },[])
+
   // For drag overlay display
   const [activeId, setActiveId] = useState(null);
 
@@ -342,6 +343,8 @@ const projectDetails= JSON.parse(localStorage.getItem("project"));
           onClose={onClose}
           initialData={null}
           onSave={(task) => dispatch(addTask(task))}
+          form={form}
+          setForm={setForm}
         />
       </Paper>
     </Box>

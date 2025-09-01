@@ -57,6 +57,25 @@ export const deleteTask = createAsyncThunk(
   }
 );
 
+
+export const createTaskDependency = createAsyncThunk(
+  "tasks/createDependency",
+  async ({ taskId, dependsOnTaskId }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/v1/dependencies?taskId=${taskId}&dependsOnTaskId=${dependsOnTaskId}`,
+        {}, // Empty body because params are passed in URL
+        { headers: { "Content-Type": "application/json" } }
+      );
+      return response.data; // TaskDependency object
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || "Failed to create task dependency"
+      );
+    }
+  }
+);
+
 // ------------------
 // Initial State
 // ------------------
@@ -65,6 +84,7 @@ const initialState = {
   tasks: [],
   loading: false,
   error: null,
+  dependency: null,
 
   fetchStatus: {
     loading: false,
@@ -171,6 +191,18 @@ const taskSlice = createSlice({
           success: false,
           error: action.payload,
         };
+      }) 
+      .addCase(createTaskDependency.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createTaskDependency.fulfilled, (state, action) => {
+        state.loading = false;
+        state.dependency = action.payload;
+      })
+      .addCase(createTaskDependency.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

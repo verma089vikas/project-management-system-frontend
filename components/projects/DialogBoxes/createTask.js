@@ -15,53 +15,47 @@ import {
   useTheme,
 } from "@mui/material";
 import { useDispatch } from "react-redux";
-import { createTask } from "@/components/slice/taskSlice";
+import { createTask, createTaskDependency } from "@/components/slice/taskSlice";
+import { useSelector } from "react-redux";
 
 // Dropdown options
 const taskStatusOptions = ["TODO", "IN_PROGRESS", "DONE"];
 const taskPriorityOptions = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
 
-// Mocked dropdown data
-const mockProjects = [
-  { id: 1, name: "Project Alpha" },
-  { id: 2, name: "Project Beta" },
-];
 
-const mockUsers = [
-  { id: 101, name: "Alice" },
-  { id: 102, name: "Bob" },
-];
-
-export default function TaskDialog({ open, onClose, onSave, initialData }) {
+export default function TaskDialog({ open, onClose, onSave, initialData,form,setForm }) {
   const theme = useTheme();
   const dispatch = useDispatch();
-  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));
+  const fullScreen = useMediaQuery(theme.breakpoints.down("sm"));  
+const { users } = useSelector((state) => state.users);
+const {tasks} = useSelector((state) => state.tasks);
+const [dependentOn, setDependentOn] = useState("");
 
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    status: "TODO",
-    priority: "LOW",
-    estimatedHours: "",
-    projectId: "",
-    assigneeId: "",
-  });
+const formattedUsers = users.map(user => ({
+      id: user.id,
+      name: user.name,
+    }));
 
-  useEffect(() => {
-    if (initialData) {
-      setForm({ ...initialData });
-    } else {
-      setForm({
-        title: "",
-        description: "",
-        status: "TODO",
-        priority: "LOW",
-        estimatedHours: "",
-        projectId: 1,
-        assigneeId: "",
-      });
-    }
-  }, [initialData]);
+ const formattedTasks = tasks.map(task => ({
+      id: task.id,
+      name: task.title
+    }));
+
+  // useEffect(() => {
+  //   if (initialData) {
+  //     setForm({ ...initialData });
+  //   } else {
+  //     setForm({
+  //       title: "",
+  //       description: "",
+  //       status: "TODO",
+  //       priority: "LOW",
+  //       estimatedHours: "",
+  //       projectId: 1,
+  //       assigneeId: "",
+  //     });
+  //   }
+  // }, [initialData]);
 
   const handleChange = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value });
@@ -70,7 +64,7 @@ export default function TaskDialog({ open, onClose, onSave, initialData }) {
   const handleSave = () => {
     const task = {
       ...form,
-      assigneeId:2,
+      assigneeId:form.assigneeId ? Number(form.assigneeId) : null,
       estimatedHours:Number(form.estimatedHours)
     };
     dispatch(createTask(task));
@@ -173,14 +167,17 @@ export default function TaskDialog({ open, onClose, onSave, initialData }) {
           {/* Project */}
           <Grid item xs={12}>
             <FormControl fullWidth sx={{minWidth:"250px"}} size="small">
-              <InputLabel>Project</InputLabel>
+              <InputLabel>Dependent On</InputLabel>
               <Select
-                value={form.projectId}
-                onChange={handleChange("projectId")}
-                label="Project"
+                value={dependentOn}
+                onChange={(e) => {
+                  setDependentOn(e.target.value);
+                  dispatch(createTaskDependency({ taskId: form.id, dependsOnTaskId: e.target.value }));
+                }}
+                label="Dependent On"
                 fullWidth
               >
-                {mockProjects.map((p) => (
+                {formattedTasks.map((p) => (
                   <MenuItem key={p.id} value={p.id}>
                     {p.name}
                   </MenuItem>
@@ -198,7 +195,7 @@ export default function TaskDialog({ open, onClose, onSave, initialData }) {
                 onChange={handleChange("assigneeId")}
                 label="Assignee"
               >
-                {mockUsers.map((u) => (
+                {formattedUsers.map((u) => (
                   <MenuItem key={u.id} value={u.id}>
                     {u.name}
                   </MenuItem>
